@@ -1,3 +1,4 @@
+// challenge at codewars: https://www.codewars.com/kata/5a5032f4fd56cb958e00007a/javascript
 
 const TVRemote = (word) => {
 
