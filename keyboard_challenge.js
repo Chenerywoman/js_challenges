@@ -62,8 +62,3 @@
   
   return count;
 }
-Best Practices0Clever0
-0ForkCompare with your solutionLink
-© 2021 CodewarsAboutAPIBlogPrivacyTermsContact
-powered by
-
