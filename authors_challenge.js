@@ -3,27 +3,6 @@
 const fs = require('fs');
 const https = require('https');
 
-// process.stdin.resume();
-// process.stdin.setEncoding('utf-8');
-
-// let inputString = '';
-// let currentLine = 0;
-
-// process.stdin.on('data', function (inputStdin) {
-//     inputString += inputStdin;
-// });
-
-// process.stdin.on('end', function () {
-//     inputString = inputString.split('\n');
-
-//     main();
-// });
-
-// function readLine() {
-//     return inputString[currentLine++];
-// }
-
-
 /*
  * Complete the 'getArticleTitles' function below.
  *
@@ -37,42 +16,62 @@ const https = require('https');
 
 async function getArticleTitles(author) {
 
-    let number = 1;
     let titles = [];
 
-    const dataCallback = (resp) => {
-        let data = '';
+    const getPromise = (author, pagenumber) => {
+        return new Promise((resolve, reject) => {
+            https.get(`https://jsonmock.hackerrank.com/api/articles?author=${author}&page=${pagenumber}`, (response) => {
+                let data = '';
 
-        // A chunk of data has been received.
-        resp.on('data', (chunk) => {
-            data += chunk;
+                response.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                response.on('end', () => {
+                    resolve({ ...JSON.parse(data) })
+                });
+
+                response.on('error', (error) => {
+                    reject(error);
+                })
+            });
         });
-
-        // The whole response has been received. Print out the result.
-        resp.on('end', () => {
-            titles = [...JSON.parse(data).data]
-            console.log(titles)
-
-        });
-
     }
 
-    https.get(`https://jsonmock.hackerrank.com/api/articles?author=${author}&page=<${number}`, dataCallback).on("error", (err) => {
-        console.log("Error: " + err.message);
-    });
+    try {
+        const articles = await getPromise(author, 1);
+
+        articles.data.forEach(article => {
+            if (article.title) {
+                titles.push(article.title)
+            } else if (article.story_title) {
+                titles.push(article.story_title)
+            }
+        });
+
+        if (articles.total_pages > 1) {
+
+            for (let i = 2; i < articles.total_pages + 1; i++) {
+
+                let moreArticles = await getPromise(author, i);
+
+                moreArticles.data.forEach(article => {
+                    if (article.title) {
+                        titles.push(article.title)
+                    } else if (article.story_title) {
+                        titles.push(article.story_title)
+                    }
+                });
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+
+    return titles;
 
 }
-// async function main() {
-//     console.log("in main");
-//     const ws = fs.createWriteStream(process.env.OUTPUT_PATH);
 
-//     const author = readLine();
-
-//     const result = await getArticleTitles(author);
-
-//     ws.write(result.join('\n') + '\n');
-
-//     ws.end();
-// }
 
 getArticleTitles("epaga");
