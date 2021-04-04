@@ -3,25 +3,25 @@
 const fs = require('fs');
 const https = require('https');
 
-process.stdin.resume();
-process.stdin.setEncoding('utf-8');
+// process.stdin.resume();
+// process.stdin.setEncoding('utf-8');
 
-let inputString = '';
-let currentLine = 0;
+// let inputString = '';
+// let currentLine = 0;
 
-process.stdin.on('data', function (inputStdin) {
-    inputString += inputStdin;
-});
+// process.stdin.on('data', function (inputStdin) {
+//     inputString += inputStdin;
+// });
 
-process.stdin.on('end', function () {
-    inputString = inputString.split('\n');
+// process.stdin.on('end', function () {
+//     inputString = inputString.split('\n');
 
-    main();
-});
+//     main();
+// });
 
-function readLine() {
-    return inputString[currentLine++];
-}
+// function readLine() {
+//     return inputString[currentLine++];
+// }
 
 
 /*
@@ -40,36 +40,26 @@ async function getArticleTitles(author) {
     let number = 1;
     let titles = [];
 
-    const getData = (author, number, callback) => {
-
-        https.get(`https://jsonmock.hackerrank.com/api/articles?author=${author}&page=<${number}`, callback);
-    }
-
-    const getTitles = () => {
-        return titles;
-    }
-
     const dataCallback = (resp) => {
         let data = '';
 
+        // A chunk of data has been received.
         resp.on('data', (chunk) => {
             data += chunk;
-        })
-
-        resp.on('end', () => {
-            console.log("in end")
-            titles = [...JSON.parse(data).data]
-            console.log(titles)
-            return titles;
         });
 
-        resp.on("error", (err) => {
-            console.log("Error: " + err.message);
+        // The whole response has been received. Print out the result.
+        resp.on('end', () => {
+            titles = [...JSON.parse(data).data]
+            console.log(titles)
+
         });
 
     }
 
-    return getData(author, number, dataCallback);
+    https.get(`https://jsonmock.hackerrank.com/api/articles?author=${author}&page=<${number}`, dataCallback).on("error", (err) => {
+        console.log("Error: " + err.message);
+    });
 
 }
 // async function main() {
